@@ -8,132 +8,107 @@ const override = css`
     // padding: 30px;
     border-color: red;
 `
-
+const Api_Key = '946d35d566e27385156baad2b0536fa2'
 class Home extends React.Component {
     state = {
-        address: '',
-        location: '',
+        ccity: '',
+        ccountry: '',
+        country: '',
+        city: '',
         error: false,
-        cords: undefined,
-        info: '',
+        info: {},
         loading: false,
-    }
-    cb1 = (err, info) => {
-        this.setState({
-            error: err,
-            info,
-            loading: false,
-        })
-
-        // console.log('from cb1', this.state);
     }
 
     cb = (err, data) => {
-        this.setState({
-            error: err,
-            cords: data,
-        })
-        console.log('from cb', this.state)
-        if (data === null) {
-            this.setState({ loading: false })
-            return
-        }
-        const { cords } = this.state
-
-        let url =
-            'https://api.darksky.net/forecast/f26d9d1d46d01cbe44919202ad81ff0b/' +
-            cords[0] +
-            ',' +
-            cords[1]
-        console.log(url)
-
-        fetch(
-            'https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/e6af5b5feb891b272e18f5e2fc0370a6/38,-122',
-            {
-                credentials: 'omit',
-                referrerPolicy: 'no-referrer-when-downgrade',
-                body: null,
-                method: 'GET',
-                mode: 'cors',
-            }
-        )
-            .then(data => data.json())
-            .then(data => {
-                console.log(data)
-                this.cb1(
-                    false,
-                    'Temperature : ' +
-                        data.currently.temperature +
-                        '°F Chances of raining: ' +
-                        data.currently.precipProbability +
-                        '%'
-                )
+        if (err) {
+            return this.setState({
+                error: err,
+                info: data,
+                loading: false,
             })
-            .catch(err => this.cb1(err.message, ''))
-    }
-
-    nameChange = e => {
-        this.setState({ address: e.target.value })
+        }
+        let obj = {}
+        obj['Temperature'] = data.main.temp + 'K'
+        obj['Humidity'] = data.main.humidity
+        obj['Description'] = data.weather[0].description
+        console.log('from cb', obj)
+        return this.setState({ loading: false, info: obj, error: false })
     }
 
     formSubmit = e => {
         e.preventDefault()
 
-        this.setState({ loading: true })
-        const { address } = this.state
-        this.setState({ location: address })
-        let url =
-            'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
-            address +
-            '.json?limit=2&access_token=pk.eyJ1IjoidGVzdGVyMXczMSIsImEiOiJjazN3MGN2aWYwcnF4M21vMTRqOXlmczVxIn0.czNWc2Swb6MlT85pW62eEA'
+        this.setState({
+            loading: true,
+            city: this.state.ccity,
+            country: this.state.ccountry,
+        })
+        const { city, country } = this.state
+        let url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&APPID=${Api_Key}`
 
         request({ url, json: true }, (error, response) => {
             console.log(response)
             if (error) {
-                return this.cb(error, null)
-            } else if (response.body.features === undefined) {
-                return this.cb('Please enter valid location', null)
+                return this.cb(error, {})
+            } else if (response.body.message !== undefined) {
+                return this.cb(response.body.message, {})
             }
-            this.cb(false, response.body.features[0].center)
+            this.cb(false, response.body)
         })
     }
 
     render() {
-        let response = <div className="res">{this.state.error}</div>
-        if (this.state.cords && this.state.error === false) {
-            response = (
-                <div className="res">
-                    <Map address={this.state.location} />
-                    <div>{this.state.location}</div>
-                    <div>{this.state.info}</div>
+        let response = this.state.error
+        if (this.state.city !== '' && !this.state.error) {
+            const { info } = this.state
+            response = ''
+            let arr = []
+            for (let key in info) {
+                arr.push(key)
+            }
+            response = arr.map(key => (
+                <div>
+                    <span>{key}</span> : {info[key]}
                 </div>
-            )
+            ))
+            // console.log(arr)
         }
         if (this.state.loading) {
             response = (
-                <div className="res">
-                    <PacmanLoader
-                        css={override}
-                        size={90} // or 150px
-                        color={'#00ddff'}
-                    />
-                </div>
+                <PacmanLoader
+                    css={override}
+                    size={90} // or 150px
+                    color={'#00ddff'}
+                />
             )
         }
         return (
-            <React.Fragment>
-                <h1>Home</h1>
-                <form onSubmit={e => this.formSubmit(e)}>
-                    <input
-                        // style={{autofocus:"true",}}
-                        name="address"
-                        className="in"
-                        onChange={e => this.nameChange(e)}
-                    />
-                    <button className="btn">Find</button>
-                </form>
-                {response}
-            </React.Fragment>
+            <div className="main">
+                <div className="f0">Weather App</div>
+                <div className="f1">
+                    <p className="frm"></p>
+                    <form onSubmit={e => this.formSubmit(e)}>
+                        <input
+                            className="in"
+                            placeholder="City"
+                            onChange={e =>
+                                this.setState({ ccity: e.target.value })
+                            }
+                        />
+                        <input
+                            className="in"
+                            placeholder="Country code"
+                            onChange={e =>
+                                this.setState({ ccountry: e.target.value })
+                            }
+                        />
+                        <button className="btn">Get Weather</button>
+                    </form>
+
+                    <div className="res">{response}</div>
+                </div>
+            </div>
         )
     }
 }

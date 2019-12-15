@@ -1,12 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import * as serviceWorker from './serviceWorker';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import './index.css';
-import About from './utils/About';
-import Home from './utils/Home';
-import Navbar from './utils/Navbar';
-import Error from './utils/Error';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import * as serviceWorker from './serviceWorker'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
+import './index.css'
+import About from './utils/About'
+import Home from './utils/Home'
+import Navbar from './utils/Navbar'
+import Error from './utils/Error'
 
 class App extends React.Component {
     render() {
@@ -25,7 +25,7 @@ class App extends React.Component {
                     </Route>
                 </Switch>
             </div>
-        );
+        )
     }
 }
 
@@ -34,5 +34,5 @@ ReactDOM.render(
         <App />
     </BrowserRouter>,
     document.getElementById('root')
-);
-serviceWorker.unregister();
+)
+serviceWorker.unregister()
