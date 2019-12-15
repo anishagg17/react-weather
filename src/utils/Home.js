@@ -1,6 +1,6 @@
 import React from 'react'
 import request from 'request'
-import Map from './Map'
+// import Map from './Map'
 import { css } from '@emotion/core'
 import { PacmanLoader } from 'react-spinners'
 
@@ -29,7 +29,7 @@ class Home extends React.Component {
             })
         }
         let obj = {}
-        obj['Temperature'] = data.main.temp + 'K'
+        obj['Temperature'] = data.main.temp + '°C'
         obj['Humidity'] = data.main.humidity
         obj['Description'] = data.weather[0].description
         console.log('from cb', obj)
@@ -38,17 +38,20 @@ class Home extends React.Component {
 
     formSubmit = e => {
         e.preventDefault()
-
+        console.log = function() {}
         this.setState({
             loading: true,
             city: this.state.ccity,
             country: this.state.ccountry,
         })
-        const { city, country } = this.state
-        let url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&APPID=${Api_Key}`
 
+        const city = this.state.ccity
+        const country = this.state.ccountry
+        console.log(city)
+        let url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&APPID=${Api_Key}&units=metric`
+        // fetch(url).then(res => console.log(res))
         request({ url, json: true }, (error, response) => {
-            console.log(response)
+            console.log('using req', response)
             if (error) {
                 return this.cb(error, {})
             } else if (response.body.message !== undefined) {
@@ -60,7 +63,7 @@ class Home extends React.Component {
 
     render() {
         let response = this.state.error
-        if (this.state.city !== '' && !this.state.error) {
+        if (this.state.info !== {} && !this.state.error) {
             const { info } = this.state
             response = ''
             let arr = []
@@ -98,7 +101,7 @@ class Home extends React.Component {
                         />
                         <input
                             className="in"
-                            placeholder="Country code"
+                            placeholder="Country"
                             onChange={e =>
                                 this.setState({ ccountry: e.target.value })
                             }
