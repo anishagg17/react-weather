@@ -14,14 +14,11 @@ class App extends React.Component {
             <div className="container">
                 <Navbar />
                 <Switch>
-                    <Route path="/" exact>
-                        <Home />
-                    </Route>
                     <Route path="/about" exact>
                         <About />
                     </Route>
                     <Route path="/">
-                        <Error />
+                        <Home />
                     </Route>
                 </Switch>
             </div>
