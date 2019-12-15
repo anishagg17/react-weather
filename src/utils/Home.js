@@ -48,7 +48,9 @@ class Home extends React.Component {
         const city = this.state.ccity
         const country = this.state.ccountry
         console.log(city)
-        let url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&APPID=${Api_Key}&units=metric`
+        const url =
+            'https://api.openweathermap.org/data/2.5/weather?q=nahan,in&APPID=946d35d566e27385156baad2b0536fa2&units=metric'
+        // const url = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&APPID=${Api_Key}&units=metric`
         // fetch(url).then(res => console.log(res))
         request({ url, json: true }, (error, response) => {
             console.log('using req', response)
